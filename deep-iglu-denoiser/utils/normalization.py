@@ -26,8 +26,7 @@ def moving_std(arr:np.ndarray[np.float64], start:int, end:int) -> np.ndarray[np.
     Returns:
     - np.ndarray: Moving standard deviation values.
     """
-    sliced_data = arr[start:end].view()
-    std = np.std(sliced_data, axis=0)
+    std = np.std(arr[start:end], axis=0)
     return std
 
 def rolling_window_z_norm(img: np.ndarray, window_size: int):
