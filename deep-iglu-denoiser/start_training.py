@@ -38,12 +38,14 @@ def main() -> None:
     num_epochs = trainconfig["num_epochs"]
     n_pre = trainconfig["n_pre"]
     n_post = trainconfig["n_post"]
+    noise_center = trainconfig["noise_center"]
+    noise_scale = trainconfig["noise_scale"]
     path_example_img = trainconfig["path_example_img"]
     target_frame_example_img = trainconfig["target_frame_example_img"]
     predict_every_n_batches = trainconfig["predict_every_n_batches"]
 
-    dataloader = DataLoader(train_h5, batch_size, n_pre)
-    model = UNet(n_pre + n_post)
+    dataloader = DataLoader(train_h5, batch_size, n_pre, noise_center, noise_scale)
+    model = UNet(n_pre + 1 + n_post)
 
     if path_example_img != "":
         if target_frame_example_img < n_pre:

@@ -4,7 +4,14 @@ import h5py
 
 
 class DataLoader:
-    def __init__(self, train_h5: str, batch_size: int, target_frame: int):
+    def __init__(
+        self,
+        train_h5: str,
+        batch_size: int,
+        target_frame: int,
+        noise_center: float,
+        noise_scale: float,
+    ):
         """
         Initialize the DataLoader.
 
@@ -18,6 +25,8 @@ class DataLoader:
         self.train_samples = list(self.h5_file.keys())
         self.batch_size = batch_size
         self.target_frame = target_frame
+        self.noise_center = noise_center
+        self.noise_scale = noise_scale
         self.epoch_done = False
         print(
             f"Found {len(self.train_samples)} samples to train. \n Batch size is {self.batch_size} -> {len(self.train_samples)//self.batch_size} iterations per epoch."
@@ -40,6 +49,12 @@ class DataLoader:
             self.train_samples[idx] for idx in random_order
         ]
 
+    def add_noise(self, image_seq: np.ndarray) -> np.ndarray:
+        gausian_noise = np.random.normal(
+            self.noise_center, self.noise_scale, image_seq.shape
+        )
+        return np.add(image_seq, gausian_noise)
+
     def get_batch(self) -> bool:
         """
         Get a batch of training examples.
@@ -59,8 +74,7 @@ class DataLoader:
             self.y_list.append(
                 X_tmp[self.target_frame].reshape(1, X_tmp.shape[1], X_tmp.shape[2])
             )
-            X_tmp = np.delete(X_tmp, self.target_frame, axis=0)
-            self.X_list.append(X_tmp)
+            self.X_list.append(self.add_noise(X_tmp))
         self.X = torch.tensor(np.array(self.X_list), dtype=torch.float)
         self.X_list = []
         self.y = torch.tensor(np.array(self.y_list), dtype=torch.float)

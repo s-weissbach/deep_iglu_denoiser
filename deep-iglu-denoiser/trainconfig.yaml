@@ -2,6 +2,8 @@ batch_size: 16
 learning_rate: 0.0001
 n_post: 2
 n_pre: 2
+noise_center: 0.0
+noise_scale: 1.0
 num_epochs: 1
 path_example_img: '/run/media/stephan/Elements/igludata/martin_23-12-21/Glu_Cav2-1_+47_37a_R1-2.nd2'
 target_frame_example_img: 101
