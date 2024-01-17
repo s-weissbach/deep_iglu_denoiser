@@ -26,7 +26,8 @@ def moving_std(arr:np.ndarray[np.float64], start:int, end:int) -> np.ndarray[np.
     Returns:
     - np.ndarray: Moving standard deviation values.
     """
-    std = np.std(arr[start:end], axis=0)
+    sliced_data = arr[start:end].view()
+    std = np.std(sliced_data, axis=0)
     return std
 
 def rolling_window_z_norm(img: np.ndarray, window_size: int):
@@ -43,13 +44,13 @@ def rolling_window_z_norm(img: np.ndarray, window_size: int):
     """
     before = window_size // 2
     after = window_size - before
-    mean = uniform_filter1d(img,window_size,axis=0,mode='constant')
-    std = []
+    mean = uniform_filter1d(img,window_size,axis=0,mode='constant').astype(np.float16)
+    std = np.zeros_like(img, dtype=np.float16)
     for idx in range(img.shape[0]):
         start = max(0, idx - before)
         end = min(img.shape[0] - 1, idx + after)
-        std.append(moving_std(img, start, end))
-    normed_img = np.divide(np.subtract(img, mean), std)
+        std[idx,:,:] += (moving_std(img, start, end))
+    normed_img = np.divide(np.subtract(img, mean), std).astype(np.float16)
     return normed_img
 
 
