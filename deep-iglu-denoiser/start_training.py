@@ -58,11 +58,11 @@ def main() -> None:
         std = np.std(example_img, axis=0)
         example_img = z_norm(example_img, mean, std)
         example_img_pred_frames = example_img[
-            target_frame_example_img - n_pre - 1 : target_frame_example_img + n_post
+            target_frame_example_img - n_pre - 1 : target_frame_example_img + n_post,
         ]
-        example_img_pred_frames = np.delete(
-            example_img_pred_frames, n_pre, axis=0
-        ).reshape(1, n_pre + n_post, example_img.shape[-2], example_img.shape[-1])
+        example_img_pred_frames = example_img_pred_frames.reshape(
+            1, n_pre + n_post + 1, example_img.shape[1], example_img.shape[2]
+        )
         train(
             model,
             dataloader,

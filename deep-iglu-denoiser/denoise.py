@@ -31,9 +31,12 @@ def main(
     for filepath in tqdm(filelist, total=len(filelist), desc="Image Denoising"):
         filename = os.path.splitext(os.path.basename(filepath))[0]
         outfilepath = os.path.join(outputpath, f"{filename}_denoised.tif")
+        if os.path.exists(outfilepath):
+            print(f"\nSkipped image ({os.path.basename(filepath)}) – already denoised.")
+            continue
         model.denoise_img(filepath)
         model.write_denoised_img(outfilepath)
-        print(f"Saved image ({os.path.basename(filepath)}) as: {outfilepath}")
+        print(f"\nSaved image ({os.path.basename(filepath)}) as: {outfilepath}")
 
 
 def parse_arguments():

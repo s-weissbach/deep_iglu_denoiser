@@ -33,7 +33,7 @@ class ModelWrapper:
         self.n_post = n_post
         # check for GPU, use CPU otherwise
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.model = UNet(self.n_pre + self.n_post)
+        self.model = UNet(self.n_pre + self.n_post + 1)
         self.load_weights(weights)
         self.model.to(self.device)
         # initalize image
@@ -67,9 +67,15 @@ class ModelWrapper:
         self.img_mean: np.ndarray = np.mean(self.img, axis=0)
         self.img_std: np.ndarray = np.std(self.img, axis=0)
         # interpolate frames before and after img for prediction -> no frames are lost in denoising
-        pre_frames = np.tile(self.img_mean.reshape(1,self.img_height,self.img_width), (self.n_pre,1,1))
-        after_frames = np.tile(self.img_mean.reshape(1,self.img_height,self.img_width), (self.n_post,1,1))
-        self.img = np.append(pre_frames,self.img, axis=0)
+        pre_frames = np.tile(
+            self.img_mean.reshape(1, self.img_height, self.img_width),
+            (self.n_pre, 1, 1),
+        )
+        after_frames = np.tile(
+            self.img_mean.reshape(1, self.img_height, self.img_width),
+            (self.n_post, 1, 1),
+        )
+        self.img = np.append(pre_frames, self.img, axis=0)
         self.img = np.append(self.img, after_frames, axis=0)
         # normalization
         self.img: np.ndarray = normalization.z_norm(
@@ -88,10 +94,8 @@ class ModelWrapper:
         """
         # extract frames
         X = self.img[target - self.n_pre : target + self.n_post + 1]
-        # remove target frame
-        X = np.delete(X, self.n_pre, axis=0)
         # reshape to batch size 1
-        X = X.reshape(1, self.n_pre + self.n_post, self.img_height, self.img_width)
+        X = X.reshape(1, self.n_pre + self.n_post + 1, self.img_height, self.img_width)
         return torch.tensor(X, dtype=torch.float)
 
     def denoise_img(self, img_path: str) -> None:
